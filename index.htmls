@@ -1,0 +1,140 @@
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+const questions = [
+  { q: "What is Youmio?", options: ["A DeFi platform", "A gaming network", "A Layer 1 blockchain for AI agents", "A centralized AI company"], answer: 2 },
+  { q: "Which blockchain did Youmio select to launch its Layer 1 chain?", options: ["Ethereum", "Avalanche", "Solana", "Polygon"], answer: 1 },
+  { q: "According to Youmio’s CEO, Michael O’Connor, why is open infrastructure important for AI agents?", options: ["To reduce transaction fees", "To make agents faster", "To ensure transparency, trust, and user-controlled privacy", "To centralize agent control"], answer: 2 },
+  { q: "How is Youmio structured differently from general-purpose L1s?", options: ["It uses proof-of-stake instead of proof-of-work", "It is structured around agent behavior", "It eliminates the use of wallets", "It only supports financial transactions"], answer: 1 },
+  { q: "What features does each Youmio agent have?", options: ["Wallet, modular skills, and evolving metadata", "Only wallet and storage", "Consensus finality", "Smart contract sharding"], answer: 0 },
+  { q: "What is the first application on Youmio’s chain?", options: ["A DeFi liquidity protocol", "A launchpad for creating intelligent 3D AI characters (Mios)", "A token bridge", "A decentralized exchange"], answer: 1 },
+  { q: "What makes Mios unique compared to regular AI characters?", options: ["They are static and unchanging", "They evolve, develop personalities, and move across apps/games", "They can only exist in one application", "They require no blockchain integration"], answer: 1 },
+  { q: "What new model does Youmio introduce for tokens?", options: ["Stablecoin-backed model", "Agent-token model", "Proof-of-burn token model", "Governance-only token"], answer: 1 },
+  { q: "What initiative is Youmio’s CEO part of to accelerate the ecosystem?", options: ["Ethereum Foundation Fund", "InfraBUIDL(AI), a $15M Avalanche Foundation initiative", "Binance Labs Accelerator", "Solana Ventures Program"], answer: 1 },
+  { q: "What is Avalanche primarily known for?", options: ["Low speed and high cost", "Ultra-fast performance, low latency, and scalability", "Centralized governance", "Only supporting private blockchains"], answer: 1 },
+]
+
+export default function Home() {
+  const [selected, setSelected] = useState({})
+  const [current, setCurrent] = useState(0)
+
+  const q = questions[current]
+
+  function handleSelect(oi) {
+    setSelected(prev => ({ ...prev, [current]: oi }))
+  }
+
+  const score = Object.keys(selected).reduce((s, k) => {
+    const qi = Number(k)
+    if (questions[qi].answer === selected[qi]) return s + 1
+    return s
+  }, 0)
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-tr from-purple-700 via-indigo-700 to-blue-600">
+      <div className="w-full max-w-3xl bg-white/5 backdrop-blur-md rounded-3xl shadow-xl border border-white/10 p-8">
+        <header className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-extrabold text-white">Youmio — Interactive Quiz</h1>
+            <p className="text-sm text-gray-200 mt-1">Showcasing Youmio: a purpose-built agent chain</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-200">Project by <span className="font-semibold text-white">Tardrain</span></p>
+          </div>
+        </header>
+
+        <main>
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm text-gray-200">Question {current + 1} / {questions.length}</div>
+            <div className="text-sm text-gray-200">Score: <span className="font-semibold">{score}</span></div>
+          </div>
+
+          <motion.div key={current} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="p-6 bg-white rounded-2xl shadow-md">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">{q.q}</h2>
+            <div className="grid grid-cols-1 gap-3">
+              {q.options.map((opt, oi) => {
+                const isSelected = selected[current] === oi
+                const isCorrect = q.answer === oi
+                let ring = "ring-0"
+                if (isSelected && isCorrect) ring = "ring-2 ring-green-400/60"
+                else if (isSelected && !isCorrect) ring = "ring-2 ring-red-400/60"
+                else if (isCorrect && selected[current] !== undefined) ring = "ring-2 ring-green-200/40"
+
+                return (
+                  <motion.button
+                    layout
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    key={oi}
+                    onClick={() => handleSelect(oi)}
+                    className={w-full text-left p-4 rounded-xl bg-white/80 hover:bg-white transition-shadow shadow-sm ${ring}}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold">{String.fromCharCode(65 + oi)}</div>
+                        <div className="text-gray-800">{opt}</div>
+                      </div>
+                      <div className="text-sm">
+                        {isSelected ? (isCorrect ? <span className="text-green-600 font-semibold">Correct</span> : <span className="text-red-600 font-semibold">Wrong</span>) : null}
+                      </div>
+                    </div>
+                  </motion.button>
+                )
+              })}
+            </div>
+          </motion.div>
+
+          <div className="flex items-center justify-between mt-4">
+            <button
+              onClick={() => setCurrent(c => Math.max(0, c - 1))}
+              className="px-4 py-2 rounded-md bg-white/10 text-white hover:bg-white/20"
+            >Previous</button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  setSelected({})
+                  setCurrent(0)
+                }}
+                className="px-4 py-2 rounded-md bg-white/10 text-white hover:bg-white/20"
+              >Reset</button>
+              <button
+                onClick={() => setCurrent(c => Math.min(questions.length - 1, c + 1))}
+                className="px-4 py-2 rounded-md bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md hover:opacity-95"
+              >Next</button>
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {Object.keys(selected).length === questions.length && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="mt-6 p-4 bg-white/10 rounded-lg text-white text-center"
+              >
+                <div className="font-semibold">
+                  Final Score: {score} / {questions.length}
+                </div>
+                <div className="text-sm text-gray-200 mt-1">
+                  Great work — share this with your team!
+                </div>
+
+                {/* 👋 Team shoutout section */}
+                <div className="mt-4 p-4 bg-indigo-600/80 rounded-lg shadow-lg">
+                  <p className="text-lg font-bold text-white">👋 Hey Youmio Team!</p>
+                  <p className="text-sm text-indigo-100 mt-1">
+                    This interactive quiz was built by{" "}
+                    <span className="font-semibold">Tardrain</span> to showcase Youmio.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
+
+        <footer className="mt-6 text-center text-xs text-gray-300">
+          ⚡ Proudly built on <span className="font-semibold">Youmio</span> — Tardrain
+        </footer>
+      </div>
+    </div>
+  )
+}
